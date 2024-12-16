@@ -38,8 +38,6 @@ impl Conways {
                     _ => 0 
                 };
 
-                println!("new state {new_state} {neighbours_count} {row} {column}");
-
                 new_world[row][column] = new_state;
             }
         }
