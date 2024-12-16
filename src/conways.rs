@@ -1,7 +1,13 @@
-use std::{fmt::Display, usize};
+use std::fmt::Display;
+
+#[derive(Clone, Copy)]
+enum CellState {
+    Alive,
+    Dead
+}
 
 pub struct Conways {
-    world: Vec<Vec<u8>>,
+    world: Vec<Vec<CellState>>,
     width: usize,
     height: usize
 }
@@ -9,36 +15,34 @@ pub struct Conways {
 impl Conways {
     pub fn new(width: usize, height: usize) -> Self {
         Self {
-            world: vec![vec![0; width]; height],
+            world: vec![vec![CellState::Dead; width]; height],
             width,
             height
         }
     }
 
     pub fn set_alive(&mut self, row: usize, column: usize) {
-        self.world[row][column] = 1;
+        self.world[row][column] = CellState::Alive;
     }
 
     pub fn tick(&mut self) {
-        let mut new_world: Vec<Vec<u8>> = vec![vec![0; self.width]; self.height];
-        for row in 0..self.height {
-            for column in 0..self.width {
-                let neighbours_count = self.neighbours_count(row, column);
+        let mut new_world: Vec<Vec<CellState>> = vec![vec![CellState::Dead; self.width]; self.height];
+        for (row_index, row) in new_world.iter_mut().enumerate().take(self.height) {
+            for (column_index, cell) in row.iter_mut().enumerate().take(self.width) {
+                let neighbours_count = self.neighbours_count(row_index, column_index);
 
-                let new_state = match (neighbours_count, self.world[row][column]) {
+                *cell = match (neighbours_count, self.world[row_index][column_index]) {
                     // underpopulation
-                    (0..=1, 1) => 0,
+                    (0..=1, CellState::Alive) => CellState::Dead,
                     // survives
-                    (2..=3, 1) => 1,
+                    (2..=3, CellState::Alive) => CellState::Alive,
                     // overpopulation
-                    (4.., 1) => 0,
+                    (4.., CellState::Alive) => CellState::Dead,
                     // reproduction
-                    (3, 0) => 1,
+                    (3, CellState::Dead) => CellState::Alive,
                     // no reproduction
-                    _ => 0 
+                    _ => CellState::Dead 
                 };
-
-                new_world[row][column] = new_state;
             }
         }
 
@@ -62,8 +66,11 @@ impl Conways {
                 }
 
                 res += match self.world.get(x as usize) {
-                    None => 0 as u8,
-                    Some(v) => *v.get(y as usize).unwrap_or(&0)
+                    None => 0,
+                    Some(v) => match v.get(y as usize) {
+                        Some(CellState::Alive) => 1,
+                        _ => 0
+                    }
                 };
             }
         }
@@ -78,8 +85,17 @@ impl Display for Conways {
             for cell in row {
                 write!(f, "{cell} ")?;
             }
-            writeln!(f, "")?;
+            writeln!(f)?;
         };
         Ok(())
+    }
+}
+
+impl Display for CellState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CellState::Alive => write!(f, "1"),
+            CellState::Dead => write!(f, "0")
+        }
     }
 }
