@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 enum CellState {
     Alive,
     Dead
@@ -27,6 +27,15 @@ impl Conways {
                 *cell = CellState::Alive;
             }
         }
+    }
+
+    fn get(&self, row: usize, column: usize) -> Option<CellState> {
+        if let Some(row_grid) = self.world.get(row) {
+            if let Some(cell) = row_grid.get(column) {
+                return Some(*cell)
+            }
+        }
+        None
     }
 
     pub fn tick(&mut self) {
@@ -100,3 +109,100 @@ impl Display for CellState {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn create_valid_game() {
+        let conways = Conways::new(10, 10);
+        assert_eq!(conways.height, 10);
+        assert_eq!(conways.width, 10);
+        assert_eq!(conways.world.len(), 10);
+        assert_eq!(conways.world.first().unwrap().len(), 10);
+    }
+
+    #[test]
+    fn correctly_setting_cells() {
+        let dim = 10;
+        let mut conway = Conways::new(dim, dim);
+        conway.set_alive(1, 1);
+
+        assert_eq!(conway.get(1, 1).unwrap(), CellState::Alive);
+
+        for i in 0..dim {
+            for j in 0..dim {
+                if i == 1 && j == 1 {
+                    continue;
+                }
+                assert_eq!(conway.get(i, j).unwrap(), CellState::Dead);
+            }
+        }
+    }
+
+    #[test]
+    fn only_counts_alive_neighbours() {
+        let dim = 10;
+        let mut conway = Conways::new(dim, dim);
+        conway.set_alive(1, 1);
+        assert_eq!(conway.neighbours_count(1, 1), 0);
+        assert_eq!(conway.neighbours_count(1, 2), 1);
+        conway.set_alive(1, 2);
+        assert_eq!(conway.neighbours_count(2, 1), 2);
+    }
+
+    #[test]
+    fn underpopulation_rule() {
+        let dim = 10;
+        let mut conway = Conways::new(dim, dim);
+        conway.set_alive(1, 1);
+        conway.tick();
+        assert_eq!(conway.get(1, 1).unwrap(), CellState::Dead);
+        assert_eq!(conway.get(0, 1).unwrap(), CellState::Dead);
+    }
+
+    #[test]
+    fn survives_rule() {
+        let dim = 10;
+        let mut conway = Conways::new(dim, dim);
+        // for two
+        conway.set_alive(1, 1);
+        conway.set_alive(1, 2);
+        conway.set_alive(1, 0);
+        conway.tick();
+        assert_eq!(conway.get(1, 1).unwrap(), CellState::Alive);
+
+        // for threee neighbours
+        conway.set_alive(5, 5);
+        conway.set_alive(5, 6);
+        conway.set_alive(5, 4);
+        conway.set_alive(4, 5);
+        conway.tick();
+        assert_eq!(conway.get(5, 5).unwrap(), CellState::Alive);
+    }
+
+    #[test]
+    fn overpopulation_rule() {
+        let dim = 10;
+        let mut conway = Conways::new(dim, dim);
+        conway.set_alive(1, 1);
+        conway.set_alive(1, 2);
+        conway.set_alive(1, 0);
+        conway.set_alive(2, 1);
+        conway.set_alive(0, 1);
+        conway.tick();
+        assert_eq!(conway.get(1, 1).unwrap(), CellState::Dead);
+    }
+
+    #[test]
+    fn reproduction_rule() {
+        let dim = 10;
+        let mut conway = Conways::new(dim, dim);
+        conway.set_alive(1, 2);
+        conway.set_alive(1, 0);
+        conway.set_alive(2, 1);
+        conway.tick();
+        assert_eq!(conway.get(1, 1).unwrap(), CellState::Alive);
+    }
+} 

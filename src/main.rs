@@ -19,4 +19,8 @@ fn main() {
         conway.tick();
         println!("{}", conway);
     }
+
+    for (i, j) in (0..10).enumerate() {
+        println!("{i} {j}");
+    }
 }

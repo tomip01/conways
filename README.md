@@ -18,6 +18,6 @@ make run
 ## ToDo's
 
 - [x] implement game logic
-- [ ] add tests
+- [x] add tests
 - [ ] make graphical interface
 - [ ] make it user interactive 
