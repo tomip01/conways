@@ -29,6 +29,10 @@ impl Conways {
         }
     }
 
+    pub fn is_alive(&self, x: usize, y: usize) -> bool {
+        matches!(self.get(x, y), Some(CellState::Alive))
+    }
+
     fn get(&self, row: usize, column: usize) -> Option<CellState> {
         if let Some(row_grid) = self.world.get(row) {
             if let Some(cell) = row_grid.get(column) {
