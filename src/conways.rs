@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 enum CellState {
     Alive,
     Dead
@@ -22,7 +22,11 @@ impl Conways {
     }
 
     pub fn set_alive(&mut self, row: usize, column: usize) {
-        self.world[row][column] = CellState::Alive;
+        if let Some(row_grid) = self.world.get_mut(row) {
+            if let Some(cell) = row_grid.get_mut(column) {
+                *cell = CellState::Alive;
+            }
+        }
     }
 
     pub fn tick(&mut self) {
@@ -57,21 +61,18 @@ impl Conways {
                 let x = row as i32 + height;
                 let y = column as i32 + width;
 
-                if x < 0 || y < 0 {
-                    continue;
-                }
-
                 if height == 0 && width == 0 {
                     continue;
                 }
 
-                res += match self.world.get(x as usize) {
-                    None => 0,
-                    Some(v) => match v.get(y as usize) {
-                        Some(CellState::Alive) => 1,
-                        _ => 0
-                    }
-                };
+                if self
+                    .world
+                    .get(x as usize)
+                    .and_then(|row| row.get(y as usize))
+                    .is_some_and(|cell| *cell == CellState::Alive)
+                {
+                    res += 1;
+                }
             }
         }
         res
