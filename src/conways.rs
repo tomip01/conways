@@ -74,14 +74,10 @@ impl Conways {
                     continue;
                 }
 
-                if self
-                    .world
-                    .get(x as usize)
-                    .and_then(|row| row.get(y as usize))
-                    .is_some_and(|cell| *cell == CellState::Alive)
-                {
-                    res += 1;
-                }
+                res += match self.get(x as usize, y as usize) {
+                    Some(CellState::Alive) => 1,
+                    _ =>0
+                };
             }
         }
         res
