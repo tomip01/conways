@@ -37,6 +37,8 @@ impl Game {
         let time_of_last_frame = get_time();
         self.draw();
 
+        // rendering time is too fast to be visually pleasing
+        // update cells state in fixed preriods of time
         if 
             time_of_last_frame - self.previous_time > UPDATE_INTERVAL
             && self.state == GameState::Running 
@@ -62,6 +64,7 @@ impl Game {
         }
     }
 
+    // handles all interaction with the user
     pub fn user_interaction(&mut self) {
         if is_key_pressed(KeyCode::Space) {
             self.state = match self.state {
@@ -71,6 +74,8 @@ impl Game {
             
         }
 
+        // Only can add or remove cells when paused
+        // else it wouldn't be easy to form patterns
         if self.state == GameState::Paused {
             if is_mouse_button_pressed(MouseButton::Left) {
                 self.set_alive();
@@ -81,19 +86,30 @@ impl Game {
     }
 
     fn set_dead(&mut self) {
-        let (mouse_x, mouse_y) = mouse_position();
-        let x = mouse_x as usize / CELL_SIZE as usize;
-        let y = mouse_y as usize / CELL_SIZE as usize;
+        let (x, y) = get_mouse_grid_position();
         self.conways.set_dead(x, y);
     }
     
     fn set_alive(&mut self) {
-        let (mouse_x, mouse_y) = mouse_position();
-        let x = mouse_x as usize / CELL_SIZE as usize;
-        let y = mouse_y as usize / CELL_SIZE as usize;
+        let (x, y) = get_mouse_grid_position();
         self.conways.set_alive(x, y);
     }
+
+    pub fn set_blinker(&mut self) {
+        self.conways.set_alive(1, 1);
+        self.conways.set_alive(1, 0);
+        self.conways.set_alive(1, 2);
+    }
     
+}
+
+// get mouse position and get corresponding cell in the grid position
+// cast it to usize
+fn get_mouse_grid_position() -> (usize, usize) {
+    let (mouse_x, mouse_y) = mouse_position();
+    let x = mouse_x as usize / CELL_SIZE as usize;
+    let y = mouse_y as usize / CELL_SIZE as usize;
+    (x, y)
 }
 
 fn window_conf() -> Conf {
@@ -109,9 +125,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut game = Game::new(WIDTH, HEIGHT);
-    game.conways.set_alive(1, 1);
-    game.conways.set_alive(1, 0);
-    game.conways.set_alive(1, 2);
+    game.set_blinker();
 
     loop {
         game.user_interaction();

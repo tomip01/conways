@@ -19,5 +19,5 @@ make run
 
 - [x] implement game logic
 - [x] add tests
-- [ ] make graphical interface
-- [ ] make it user interactive 
+- [x] make graphical interface
+- [x] make it user interactive 

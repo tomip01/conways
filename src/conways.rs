@@ -14,6 +14,7 @@ pub struct Conways {
 
 impl Conways {
     pub fn new(width: usize, height: usize) -> Self {
+        // initialize all cells as Dead
         Self {
             world: vec![vec![CellState::Dead; width]; height],
             width,
@@ -82,6 +83,7 @@ impl Conways {
                 let x = row as i32 + height;
                 let y = column as i32 + width;
 
+                // if both zeros, is the same cell, not a neighbour
                 if height == 0 && width == 0 {
                     continue;
                 }
@@ -139,6 +141,7 @@ mod tests {
 
         assert_eq!(conway.get(1, 1).unwrap(), CellState::Alive);
 
+        // all Other cells are Dead
         for i in 0..dim {
             for j in 0..dim {
                 if i == 1 && j == 1 {
@@ -156,13 +159,9 @@ mod tests {
         conway.set_alive(1, 1);
         conway.set_dead(1, 1);
 
-        assert_eq!(conway.get(1, 1).unwrap(), CellState::Dead);
-
+        // all cells are Dead
         for i in 0..dim {
             for j in 0..dim {
-                if i == 1 && j == 1 {
-                    continue;
-                }
                 assert_eq!(conway.get(i, j).unwrap(), CellState::Dead);
             }
         }
@@ -200,7 +199,7 @@ mod tests {
         conway.tick();
         assert_eq!(conway.get(1, 1).unwrap(), CellState::Alive);
 
-        // for threee neighbours
+        // for three neighbours
         conway.set_alive(5, 5);
         conway.set_alive(5, 6);
         conway.set_alive(5, 4);
