@@ -14,10 +14,7 @@ git clone https://github.com/tomip01/conways.git && cd conways
 ```bash
 make run
 ```
-
-## ToDo's
-
-- [x] implement game logic
-- [x] add tests
-- [x] make graphical interface
-- [x] make it user interactive 
+**In game**
+* Pause/Resume game with Space
+* Add cells with left click on a Paused Game
+* Remove cells with rigth click on a Paused Game
