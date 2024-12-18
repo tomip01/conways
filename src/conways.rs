@@ -14,6 +14,7 @@ pub struct Conways {
 
 impl Conways {
     pub fn new(width: usize, height: usize) -> Self {
+        // initialize all cells as Dead
         Self {
             world: vec![vec![CellState::Dead; width]; height],
             width,
@@ -27,6 +28,18 @@ impl Conways {
                 *cell = CellState::Alive;
             }
         }
+    }
+
+    pub fn set_dead(&mut self, row: usize, column: usize) {
+        if let Some(row_grid) = self.world.get_mut(row) {
+            if let Some(cell) = row_grid.get_mut(column) {
+                *cell = CellState::Dead;
+            }
+        }
+    }
+
+    pub fn is_alive(&self, x: usize, y: usize) -> bool {
+        matches!(self.get(x, y), Some(CellState::Alive))
     }
 
     fn get(&self, row: usize, column: usize) -> Option<CellState> {
@@ -70,6 +83,7 @@ impl Conways {
                 let x = row as i32 + height;
                 let y = column as i32 + width;
 
+                // if both zeros, is the same cell, not a neighbour
                 if height == 0 && width == 0 {
                     continue;
                 }
@@ -127,11 +141,27 @@ mod tests {
 
         assert_eq!(conway.get(1, 1).unwrap(), CellState::Alive);
 
+        // all Other cells are Dead
         for i in 0..dim {
             for j in 0..dim {
                 if i == 1 && j == 1 {
                     continue;
                 }
+                assert_eq!(conway.get(i, j).unwrap(), CellState::Dead);
+            }
+        }
+    }
+
+    #[test]
+    fn correctly_setting_dead_cells() {
+        let dim = 10;
+        let mut conway = Conways::new(dim, dim);
+        conway.set_alive(1, 1);
+        conway.set_dead(1, 1);
+
+        // all cells are Dead
+        for i in 0..dim {
+            for j in 0..dim {
                 assert_eq!(conway.get(i, j).unwrap(), CellState::Dead);
             }
         }
@@ -169,7 +199,7 @@ mod tests {
         conway.tick();
         assert_eq!(conway.get(1, 1).unwrap(), CellState::Alive);
 
-        // for threee neighbours
+        // for three neighbours
         conway.set_alive(5, 5);
         conway.set_alive(5, 6);
         conway.set_alive(5, 4);
