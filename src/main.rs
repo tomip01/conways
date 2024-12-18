@@ -5,12 +5,21 @@ mod conways;
 
 const CELL_SIZE: f32 = 10.0;
 const UPDATE_INTERVAL: f64 = 1.0;
+const WIDTH: usize = 50;
+const HEIGHT: usize = 50;
 
 struct Game {
     conways: Conways,
     previous_time: f64,
     width: usize,
-    height: usize
+    height: usize,
+    state: GameState
+}
+
+#[derive(PartialEq)]
+enum GameState {
+    Running,
+    Paused
 }
 
 impl Game {
@@ -19,41 +28,93 @@ impl Game {
             conways: Conways::new(width, height),
             previous_time: get_time(),
             width,
-            height
+            height,
+            state: GameState::Running
         }
     }
 
     pub fn update(&mut self) {
         let time_of_last_frame = get_time();
         self.draw();
-        if time_of_last_frame - self.previous_time > UPDATE_INTERVAL {
+
+        if 
+            time_of_last_frame - self.previous_time > UPDATE_INTERVAL
+            && self.state == GameState::Running 
+        {
             self.conways.tick();
             self.previous_time = time_of_last_frame;
         }
     }
+
     fn draw(&self) {
         clear_background(BLACK);
         for x in  0..self.height {
             for y in 0..self.width {
                 if self.conways.is_alive(x,y) {
-                    draw_rectangle(x as f32 * CELL_SIZE, y as f32 * CELL_SIZE, CELL_SIZE, CELL_SIZE, WHITE);
+                    draw_rectangle(
+                        x as f32 * CELL_SIZE, 
+                        y as f32 * CELL_SIZE, 
+                        CELL_SIZE, 
+                        CELL_SIZE, 
+                        WHITE);
                 }
             }
         }
     }
+
+    pub fn user_interaction(&mut self) {
+        if is_key_pressed(KeyCode::Space) {
+            self.state = match self.state {
+                GameState::Paused => GameState::Running,
+                GameState::Running => GameState::Paused
+            };
+            
+        }
+
+        if self.state == GameState::Paused {
+            if is_mouse_button_pressed(MouseButton::Left) {
+                self.set_alive();
+            } else if is_mouse_button_pressed(MouseButton::Right) {
+                self.set_dead();
+            }
+        }
+    }
+
+    fn set_dead(&mut self) {
+        let (mouse_x, mouse_y) = mouse_position();
+        let x = mouse_x as usize / CELL_SIZE as usize;
+        let y = mouse_y as usize / CELL_SIZE as usize;
+        self.conways.set_dead(x, y);
+    }
+    
+    fn set_alive(&mut self) {
+        let (mouse_x, mouse_y) = mouse_position();
+        let x = mouse_x as usize / CELL_SIZE as usize;
+        let y = mouse_y as usize / CELL_SIZE as usize;
+        self.conways.set_alive(x, y);
+    }
+    
 }
 
+fn window_conf() -> Conf {
+    Conf {
+        fullscreen: false,
+        window_title: "Conway's Game of Life".to_string(),
+        window_width: CELL_SIZE as i32 * WIDTH as i32,
+        window_height: CELL_SIZE as i32 * HEIGHT as i32,
+        ..Default::default()
+    }
+}
 
-#[macroquad::main("Conways")]
+#[macroquad::main(window_conf)]
 async fn main() {
-    let width = 50;
-    let height = 50;
-
-    let mut game = Game::new(width, height);
+    let mut game = Game::new(WIDTH, HEIGHT);
     game.conways.set_alive(1, 1);
     game.conways.set_alive(1, 0);
     game.conways.set_alive(1, 2);
+
     loop {
+        game.user_interaction();
         game.update();
         next_frame().await;
     }

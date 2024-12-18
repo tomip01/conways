@@ -29,6 +29,14 @@ impl Conways {
         }
     }
 
+    pub fn set_dead(&mut self, row: usize, column: usize) {
+        if let Some(row_grid) = self.world.get_mut(row) {
+            if let Some(cell) = row_grid.get_mut(column) {
+                *cell = CellState::Dead;
+            }
+        }
+    }
+
     pub fn is_alive(&self, x: usize, y: usize) -> bool {
         matches!(self.get(x, y), Some(CellState::Alive))
     }
@@ -130,6 +138,25 @@ mod tests {
         conway.set_alive(1, 1);
 
         assert_eq!(conway.get(1, 1).unwrap(), CellState::Alive);
+
+        for i in 0..dim {
+            for j in 0..dim {
+                if i == 1 && j == 1 {
+                    continue;
+                }
+                assert_eq!(conway.get(i, j).unwrap(), CellState::Dead);
+            }
+        }
+    }
+
+    #[test]
+    fn correctly_setting_dead_cells() {
+        let dim = 10;
+        let mut conway = Conways::new(dim, dim);
+        conway.set_alive(1, 1);
+        conway.set_dead(1, 1);
+
+        assert_eq!(conway.get(1, 1).unwrap(), CellState::Dead);
 
         for i in 0..dim {
             for j in 0..dim {
