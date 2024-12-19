@@ -17,4 +17,4 @@ make run
 **In game**
 * Pause/Resume game with Space
 * Add cells with left click on a Paused Game
-* Remove cells with rigth click on a Paused Game
+* Remove cells with right click on a Paused Game
