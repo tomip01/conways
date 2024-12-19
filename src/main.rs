@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 mod conways;
 
 const CELL_SIZE: f32 = 10.0;
-const UPDATE_INTERVAL: f64 = 1.0;
+const UPDATE_INTERVAL: f64 = 0.5;
 const WIDTH: usize = 50;
 const HEIGHT: usize = 50;
 
@@ -46,6 +46,16 @@ impl Game {
             self.conways.tick();
             self.previous_time = time_of_last_frame;
         }
+
+        if self.state == GameState::Paused {
+            draw_text("Paused", 
+            (WIDTH as f32 * CELL_SIZE) / 2.0 - 30.0, 
+            (HEIGHT as f32 * CELL_SIZE) / 2.0, 
+            25.0, 
+            RED);
+        }
+
+        display_instructions();
     }
 
     fn draw(&self) {
@@ -103,6 +113,12 @@ impl Game {
     
 }
 
+fn display_instructions() {
+    draw_text("Play/Pause with Space", 10.0, 550.0, 22.5, BLUE);
+    draw_text("Add cells when game paused with left click", 10.0, 580.0, 22.5, BLUE);
+    draw_text("Remove cells when game paused with right click", 10.0, 610.0, 22.5, BLUE);
+}
+
 // get mouse position and get corresponding cell in the grid position
 // cast it to usize
 fn get_mouse_grid_position() -> (usize, usize) {
@@ -117,7 +133,7 @@ fn window_conf() -> Conf {
         fullscreen: false,
         window_title: "Conway's Game of Life".to_string(),
         window_width: CELL_SIZE as i32 * WIDTH as i32,
-        window_height: CELL_SIZE as i32 * HEIGHT as i32,
+        window_height: CELL_SIZE as i32 * HEIGHT as i32 + 150,
         ..Default::default()
     }
 }
@@ -126,6 +142,7 @@ fn window_conf() -> Conf {
 async fn main() {
     let mut game = Game::new(WIDTH, HEIGHT);
     game.set_blinker();
+    
 
     loop {
         game.user_interaction();
