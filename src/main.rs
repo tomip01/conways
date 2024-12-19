@@ -38,7 +38,7 @@ impl Game {
         self.draw();
 
         // rendering time is too fast to be visually pleasing
-        // update cells state in fixed preriods of time
+        // update cells state in fixed periods of time
         if 
             time_of_last_frame - self.previous_time > UPDATE_INTERVAL
             && self.state == GameState::Running 
