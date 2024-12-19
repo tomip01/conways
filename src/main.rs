@@ -1,4 +1,4 @@
-use conways::Conways;
+use conways::ConwaysMap;
 use macroquad::prelude::*;
 
 mod conways;
@@ -9,7 +9,7 @@ const WIDTH: usize = 50;
 const HEIGHT: usize = 50;
 
 struct Game {
-    conways: Conways,
+    conways: ConwaysMap,
     previous_time: f64,
     width: usize,
     height: usize,
@@ -25,7 +25,7 @@ enum GameState {
 impl Game {
     pub fn new(width: usize, height: usize) -> Game {
         Game {
-            conways: Conways::new(width, height),
+            conways: ConwaysMap::new(width, height),
             previous_time: get_time(),
             width,
             height,
