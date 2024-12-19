@@ -106,9 +106,14 @@ impl Game {
     }
 
     pub fn set_blinker(&mut self) {
-        self.conways.set_alive(1, 1);
-        self.conways.set_alive(1, 0);
-        self.conways.set_alive(1, 2);
+        for i in 0..HEIGHT {
+            for j in 0..WIDTH {
+                let p: f32 = macroquad::rand::rand() as f32 / u32::MAX as f32;
+                if p < 0.2 {
+                    self.conways.set_alive(i, j);
+                }
+            }
+        }
     }
     
 }
