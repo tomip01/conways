@@ -3,13 +3,13 @@ use std::fmt::Display;
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum CellState {
     Alive,
-    Dead
+    Dead,
 }
 
 pub struct ConwaysMap {
     grid: Vec<Vec<CellState>>,
     width: usize,
-    height: usize
+    height: usize,
 }
 
 impl ConwaysMap {
@@ -18,7 +18,7 @@ impl ConwaysMap {
         Self {
             grid: vec![vec![CellState::Dead; width]; height],
             width,
-            height
+            height,
         }
     }
 
@@ -45,14 +45,15 @@ impl ConwaysMap {
     fn get(&self, row: usize, column: usize) -> Option<CellState> {
         if let Some(row_grid) = self.grid.get(row) {
             if let Some(cell) = row_grid.get(column) {
-                return Some(*cell)
+                return Some(*cell);
             }
         }
         None
     }
 
     pub fn tick(&mut self) {
-        let mut new_world: Vec<Vec<CellState>> = vec![vec![CellState::Dead; self.width]; self.height];
+        let mut new_world: Vec<Vec<CellState>> =
+            vec![vec![CellState::Dead; self.width]; self.height];
         for (row_index, row) in new_world.iter_mut().enumerate().take(self.height) {
             for (column_index, cell) in row.iter_mut().enumerate().take(self.width) {
                 let neighbours_count = self.neighbours_count(row_index, column_index);
@@ -67,7 +68,7 @@ impl ConwaysMap {
                     // reproduction
                     (3, CellState::Dead) => CellState::Alive,
                     // no reproduction
-                    _ => CellState::Dead 
+                    _ => CellState::Dead,
                 };
             }
         }
@@ -90,7 +91,7 @@ impl ConwaysMap {
 
                 res += match self.get(x as usize, y as usize) {
                     Some(CellState::Alive) => 1,
-                    _ => 0
+                    _ => 0,
                 };
             }
         }
@@ -106,7 +107,7 @@ impl Display for ConwaysMap {
                 write!(f, "{cell} ")?;
             }
             writeln!(f)?;
-        };
+        }
         Ok(())
     }
 }
@@ -115,7 +116,7 @@ impl Display for CellState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             CellState::Alive => write!(f, "1"),
-            CellState::Dead => write!(f, "0")
+            CellState::Dead => write!(f, "0"),
         }
     }
 }
@@ -231,4 +232,4 @@ mod tests {
         conway.tick();
         assert_eq!(conway.get(1, 1).unwrap(), CellState::Alive);
     }
-} 
+}
